@@ -6,26 +6,38 @@ import rrn
 class TestRRN(unittest.TestCase):
 
     def test_is_valid_rrn(self):
-        with self.assertRaises(ValueError):
-            rrn.is_valid_rrn('940812 is my birthday')
-
-        s = '9-408-12'
-        for i in range(len(s)):
-            with self.assertRaises(ValueError):
-                rrn.is_valid_rrn(s[:i])
-
-        for expected, s in [
-            (True, '940812'),
-            (False, '000001-2'),
-            (True, '9408122'),
-            (True, '940812200'),
-            (False, '940812299'),
-            (True, '9408121001745'),
-            (False, '9408121001749'),
-            (True, '9408121001751'),
-            (False, '9408121001750'),
-            (True, '9408221001740'),
-            (False, '9408221001741')
+        valid, invalid = True, False
+        for s, expected in [
+            (None, invalid),
+            ('', invalid),
+            ('RRN', invalid),
+            ('9', valid),
+            ('94', valid),
+            ('940', valid),
+            ('941', valid),
+            ('942', invalid),
+            ('8808', valid),
+            ('9413', invalid),
+            ('94081', valid),
+            ('94023', invalid),
+            ('94022', valid),
+            ('94084', invalid),
+            ('940833', invalid),
+            ('940812', valid),
+            ('940228', valid),
+            ('960228', valid),
+            ('960229', valid),
+            ('960230', invalid),
+            ('000001-2', invalid),
+            ('9408122', valid),
+            ('940812200', valid),
+            ('940812299', invalid),
+            ('9408121001745', valid),
+            ('9408121001749', invalid),
+            ('9408121001751', valid),
+            ('9408121001750', invalid),
+            ('9408221001740', valid),
+            ('9408221001741', invalid)
         ]:
             self.assertEqual(expected, rrn.is_valid_rrn(s))
 
