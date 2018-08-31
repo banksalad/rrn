@@ -11,8 +11,6 @@ setuptools.setup(
     author_email='me' '@' 'sunghyunzz.com',
     maintainer='Rainist',
     maintainer_email='engineering' '@' 'rainist.com',
-    py_modules=['rrn'],
-    install_requires=[
-        'typing;python_version<"3.5"'
-    ]
+    python_requires='>=3.5',
+    py_modules=['rrn']
 )
