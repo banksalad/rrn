@@ -1,4 +1,5 @@
 import unittest
+from datetime import date
 
 import rrn
 
@@ -42,4 +43,27 @@ class TestRRN(unittest.TestCase):
             self.assertEqual(expected, rrn.is_valid_rrn(s))
 
     def test_is_corresponding_rrn(self):
-        self.assertEqual(1 + 1, 2)
+        undecided, corresponding, not_corresponding = None, True, False
+        female, male = True, False
+        foreign, domestic = True, False
+
+        for r, (b, s, f), expected in [
+            ('RRN', (None, None, None), undecided),
+            ('940812', (None, None, None), corresponding),
+            ('940812', (None, male, None), undecided),
+            ('940812', (None, None, foreign), undecided),
+            ('940812', (None, female, foreign), undecided),
+            ('8808121', (None, male, domestic), corresponding),
+            ('6008122', (None, None, foreign), not_corresponding),
+            ('7403225', (None, female, None), not_corresponding),
+            ('9408131', (date(1994, 8, 13), None, None), corresponding),
+            ('9408121', (date(1994, 8, 12), None, domestic), corresponding),
+            ('0408127', (date(2004, 8, 12), male, domestic), not_corresponding),
+            ('9408122', (date(1994, 8, 12), female, domestic), corresponding),
+            ('9802145', (date(1998, 2, 14), male, foreign), corresponding),
+            ('9103226', (date(1991, 3, 22), female, foreign), corresponding)
+        ]:
+            self.assertEqual(
+                expected,
+                rrn.is_corresponding_rrn(r, birthday=b, female=s, foreign=f)
+            )

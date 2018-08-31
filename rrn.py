@@ -1,6 +1,7 @@
 import itertools
 import re
-from datetime import datetime
+from datetime import date, datetime
+from typing import Optional
 
 
 HYPHEN = re.compile('[-–]')
@@ -9,6 +10,8 @@ BIRTH = 0, 6
 MONTH_OF_BIRTH = 0, 4
 MONTH_OF_BIRTH_FORMAT = '%y%m'
 DAY_OF_BIRTH_FORMAT = '%y%m%d'
+
+SEX = 6
 
 LOC = 7, 9
 MAX_LOC = 97
@@ -84,5 +87,61 @@ def is_valid_rrn(rrn: str) -> bool:
         return False
 
 
-def is_corresponding_rrn(rrn: str) -> bool:
-    pass
+def _is_birthday_corresponding(rrn: str, birthday: date) -> Optional[bool]:
+    try:
+        return datetime.strptime(
+            rrn[slice(*BIRTH)],
+            DAY_OF_BIRTH_FORMAT
+        ).date() == birthday
+    except (TypeError, ValueError):
+        return None
+
+
+def _is_sex_corresponding(rrn: str, female: bool) -> Optional[bool]:
+    try:
+        return (int(rrn[SEX]) % 2 == 0) == female
+    except IndexError:
+        return None
+
+
+def _is_foreignness_corresponding(rrn: str, foreign: bool) -> Optional[bool]:
+    try:
+        return (5 <= int(rrn[SEX]) <= 8) == foreign
+    except IndexError:
+        return None
+
+
+def is_corresponding_rrn(
+    rrn: str,
+    *,
+    birthday: Optional[date]=None,
+    foreign: Optional[bool]=None,
+    female: Optional[bool]=None
+) -> Optional[bool]:
+    """
+    Check given RRN if it corresponds with given information or not.
+    It returns None if correspondence is undecidable.
+    For example, 6-digit RRN string does not contain any information about sex.
+
+    :param rrn: RRN string
+    :param birthday: expected date of birth
+    :param foreign: expected to be foreigner or not
+    :param female: expected to be female or not
+    :return: correspondence (None if it's undecidable)
+    """
+    try:
+        rrn = HYPHEN.sub('', rrn)
+        assert rrn.isdigit()
+        return (
+            (
+                birthday is None or _is_birthday_corresponding(rrn, birthday)
+            ) and
+            (
+                foreign is None or _is_foreignness_corresponding(rrn, foreign)
+            ) and
+            (
+                female is None or _is_sex_corresponding(rrn, female)
+            )
+        )
+    except (AssertionError, TypeError):
+        return None
