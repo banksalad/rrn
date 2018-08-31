@@ -3,3 +3,4 @@ env/
 .idea/
 .tox/
 *.egg-info
+build/

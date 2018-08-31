@@ -4,6 +4,9 @@ from datetime import date, datetime
 from typing import Optional
 
 
+__version__ = '0.0.1'
+
+
 HYPHEN = re.compile('[-–]')
 
 BIRTH = 0, 6
