@@ -124,31 +124,28 @@ def is_corresponding_rrn(
     birthday: Optional[date]=None,
     foreign: Optional[bool]=None,
     female: Optional[bool]=None
-) -> Optional[bool]:
+) -> bool:
     """
     Check given RRN if it corresponds with given information or not.
-    It returns None if correspondence is undecidable.
-    For example, 6-digit RRN string does not contain any information about sex.
+    It returns True still if correspondence is undecidable. (ex. 6-digit RRN
+    literal does not contain any information about sex)
 
     :param rrn: RRN string
     :param birthday: expected date of birth
     :param foreign: expected to be foreigner or not
     :param female: expected to be female or not
-    :return: correspondence (None if it's undecidable)
+    :return: correspondence
     """
     try:
         rrn = HYPHEN.sub('', rrn)
         assert rrn.isdigit()
-        return (
-            (
-                birthday is None or _is_birthday_corresponding(rrn, birthday)
-            ) and
-            (
-                foreign is None or _is_foreignness_corresponding(rrn, foreign)
-            ) and
-            (
-                female is None or _is_sex_corresponding(rrn, female)
-            )
+
+        parts = (
+            birthday is None or _is_birthday_corresponding(rrn, birthday),
+            foreign is None or _is_foreignness_corresponding(rrn, foreign),
+            female is None or _is_sex_corresponding(rrn, female)
         )
+
+        return all(p is None or p for p in parts)
     except (AssertionError, TypeError):
-        return None
+        return False

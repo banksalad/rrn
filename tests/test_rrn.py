@@ -43,16 +43,16 @@ class TestRRN(unittest.TestCase):
             self.assertEqual(expected, rrn.is_valid_rrn(s))
 
     def test_is_corresponding_rrn(self):
-        undecided, corresponding, not_corresponding = None, True, False
+        corresponding, not_corresponding = True, False
         female, male = True, False
         foreign, domestic = True, False
 
         for r, (b, s, f), expected in [
-            ('RRN', (None, None, None), undecided),
+            ('RRN', (None, None, None), not_corresponding),
             ('940812', (None, None, None), corresponding),
-            ('940812', (None, male, None), undecided),
-            ('940812', (None, None, foreign), undecided),
-            ('940812', (None, female, foreign), undecided),
+            ('940812', (None, male, None), corresponding),
+            ('940812', (None, None, foreign), corresponding),
+            ('940812', (None, female, foreign), corresponding),
             ('8808121', (None, male, domestic), corresponding),
             ('6008122', (None, None, foreign), not_corresponding),
             ('7403225', (None, female, None), not_corresponding),
@@ -61,7 +61,9 @@ class TestRRN(unittest.TestCase):
             ('0408127', (date(2004, 8, 12), male, domestic), not_corresponding),
             ('9408122', (date(1994, 8, 12), female, domestic), corresponding),
             ('9802145', (date(1998, 2, 14), male, foreign), corresponding),
-            ('9103226', (date(1991, 3, 22), female, foreign), corresponding)
+            ('9103226', (date(1991, 3, 22), female, foreign), corresponding),
+            ('620904', (date(1962, 9, 4), male, domestic), corresponding),
+            ('6209041', (date(1962, 9, 4), male, domestic), corresponding)
         ]:
             self.assertEqual(
                 expected,
