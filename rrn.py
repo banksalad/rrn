@@ -12,7 +12,8 @@ HYPHEN = re.compile('[-–]')
 BIRTH = 0, 6
 MONTH_OF_BIRTH = 0, 4
 MONTH_OF_BIRTH_FORMAT = '%y%m'
-DAY_OF_BIRTH_FORMAT = '%y%m%d'
+DAY_OF_BIRTH_LITERAL_FORMAT = '%y%m%d'
+DAY_OF_BIRTH_DATE_FORMAT = '%Y%m%d'
 
 SEX = 6
 
@@ -37,7 +38,7 @@ def _validate_day_of_birth(rrn: str) -> bool:
     try:
         return datetime.strptime(
             rrn[slice(*BIRTH)].ljust(BIRTH[1], '0'),
-            DAY_OF_BIRTH_FORMAT
+            DAY_OF_BIRTH_LITERAL_FORMAT
         ) is not None if len(rrn) >= 5 else True
     except ValueError:
         return False
@@ -93,8 +94,11 @@ def is_valid_rrn(rrn: str) -> bool:
 def _is_birthday_corresponding(rrn: str, birthday: date) -> Optional[bool]:
     try:
         return datetime.strptime(
-            rrn[slice(*BIRTH)],
-            DAY_OF_BIRTH_FORMAT
+            '{century}{rrn}'.format(
+                century=birthday.year // 100,
+                rrn=rrn[slice(*BIRTH)]
+            ),
+            DAY_OF_BIRTH_DATE_FORMAT
         ).date() == birthday
     except (TypeError, ValueError):
         return None
