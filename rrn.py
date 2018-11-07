@@ -4,7 +4,7 @@ from datetime import date, datetime
 from typing import Optional
 
 
-__version__ = '0.0.1'
+__version__ = '0.1.0'
 
 
 HYPHEN = re.compile('[-–]')
