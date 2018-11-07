@@ -12,7 +12,8 @@ HYPHEN = re.compile('[-–]')
 BIRTH = 0, 6
 MONTH_OF_BIRTH = 0, 4
 MONTH_OF_BIRTH_FORMAT = '%y%m'
-DAY_OF_BIRTH_FORMAT = '%y%m%d'
+DAY_OF_BIRTH_LITERAL_FORMAT = '%y%m%d'
+DAY_OF_BIRTH_DATE_FORMAT = '%Y%m%d'
 
 SEX = 6
 
@@ -37,7 +38,7 @@ def _validate_day_of_birth(rrn: str) -> bool:
     try:
         return datetime.strptime(
             rrn[slice(*BIRTH)].ljust(BIRTH[1], '0'),
-            DAY_OF_BIRTH_FORMAT
+            DAY_OF_BIRTH_LITERAL_FORMAT
         ) is not None if len(rrn) >= 5 else True
     except ValueError:
         return False
@@ -93,8 +94,11 @@ def is_valid_rrn(rrn: str) -> bool:
 def _is_birthday_corresponding(rrn: str, birthday: date) -> Optional[bool]:
     try:
         return datetime.strptime(
-            rrn[slice(*BIRTH)],
-            DAY_OF_BIRTH_FORMAT
+            '{century}{rrn}'.format(
+                century=birthday.year // 100,
+                rrn=rrn[slice(*BIRTH)]
+            ),
+            DAY_OF_BIRTH_DATE_FORMAT
         ).date() == birthday
     except (TypeError, ValueError):
         return None
@@ -120,31 +124,28 @@ def is_corresponding_rrn(
     birthday: Optional[date]=None,
     foreign: Optional[bool]=None,
     female: Optional[bool]=None
-) -> Optional[bool]:
+) -> bool:
     """
     Check given RRN if it corresponds with given information or not.
-    It returns None if correspondence is undecidable.
-    For example, 6-digit RRN string does not contain any information about sex.
+    It returns True still if correspondence is undecidable. (ex. 6-digit RRN
+    literal does not contain any information about sex)
 
     :param rrn: RRN string
     :param birthday: expected date of birth
     :param foreign: expected to be foreigner or not
     :param female: expected to be female or not
-    :return: correspondence (None if it's undecidable)
+    :return: correspondence
     """
     try:
         rrn = HYPHEN.sub('', rrn)
         assert rrn.isdigit()
-        return (
-            (
-                birthday is None or _is_birthday_corresponding(rrn, birthday)
-            ) and
-            (
-                foreign is None or _is_foreignness_corresponding(rrn, foreign)
-            ) and
-            (
-                female is None or _is_sex_corresponding(rrn, female)
-            )
+
+        parts = (
+            birthday is None or _is_birthday_corresponding(rrn, birthday),
+            foreign is None or _is_foreignness_corresponding(rrn, foreign),
+            female is None or _is_sex_corresponding(rrn, female)
         )
+
+        return all(p is None or p for p in parts)
     except (AssertionError, TypeError):
-        return None
+        return False
