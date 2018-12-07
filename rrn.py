@@ -70,6 +70,19 @@ def _validate_hash(rrn: str) -> bool:
         return True
 
 
+def _is_valid_domestic_rrn(rrn: str) -> bool:
+    return (
+        rrn.isdigit() and
+        _validate_birth(rrn) and
+        _validate_location(rrn) and
+        _validate_hash(rrn)
+    )
+
+
+def _is_valid_foreign_rrn(rrn: str) -> bool:
+    return rrn.isdigit() and _validate_birth(rrn)
+
+
 def is_valid_rrn(rrn: str) -> bool:
     """
     Validate given RRN and returns if it might be valid or not.
@@ -81,12 +94,10 @@ def is_valid_rrn(rrn: str) -> bool:
     """
     try:
         rrn = HYPHEN.sub('', rrn)
-        return (
-            rrn.isdigit() and
-            _validate_birth(rrn) and
-            _validate_location(rrn) and
-            _validate_hash(rrn)
-        )
+        if is_foreign(rrn):
+            return _is_valid_foreign_rrn(rrn)
+        else:
+            return _is_valid_domestic_rrn(rrn)
     except TypeError:
         return False
 
@@ -112,8 +123,20 @@ def _is_sex_corresponding(rrn: str, female: bool) -> Optional[bool]:
 
 
 def _is_foreignness_corresponding(rrn: str, foreign: bool) -> Optional[bool]:
+    f = is_foreign(rrn)
+    return f == foreign if f is not None else None
+
+
+def is_foreign(rrn: str) -> Optional[bool]:
+    """
+    Check if given RRN literal is foreigner or not.
+    It returns None when given RRN literal is too short to determine.
+
+    :param rrn: RRN literal
+    :return: expectation to be foreigner or not
+    """
     try:
-        return (5 <= int(rrn[SEX]) <= 8) == foreign
+        return 5 <= int(rrn[SEX]) <= 8
     except IndexError:
         return None
 
@@ -130,7 +153,7 @@ def is_corresponding_rrn(
     It returns True still if correspondence is undecidable. (ex. 6-digit RRN
     literal does not contain any information about sex)
 
-    :param rrn: RRN string
+    :param rrn: RRN literal
     :param birthday: expected date of birth
     :param foreign: expected to be foreigner or not
     :param female: expected to be female or not
