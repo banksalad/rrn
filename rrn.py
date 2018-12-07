@@ -80,7 +80,7 @@ def _is_valid_domestic_rrn(rrn: str) -> bool:
 
 
 def _is_valid_foreign_rrn(rrn: str) -> bool:
-    return (
+    return rrn.isdigit() and _validate_birth(rrn)
         rrn.isdigit() and
         _validate_birth(rrn)
     )
