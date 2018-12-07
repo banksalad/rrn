@@ -156,7 +156,7 @@ def is_corresponding_rrn(
     It returns True still if correspondence is undecidable. (ex. 6-digit RRN
     literal does not contain any information about sex)
 
-    :param rrn: RRN string
+    :param rrn: RRN literal
     :param birthday: expected date of birth
     :param foreign: expected to be foreigner or not
     :param female: expected to be female or not
