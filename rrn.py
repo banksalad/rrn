@@ -70,6 +70,22 @@ def _validate_hash(rrn: str) -> bool:
         return True
 
 
+def _is_valid_domestic_rrn(rrn: str) -> bool:
+    return (
+        rrn.isdigit() and
+        _validate_birth(rrn) and
+        _validate_location(rrn) and
+        _validate_hash(rrn)
+    )
+
+
+def _is_valid_foreign_rrn(rrn: str) -> bool:
+    return (
+        rrn.isdigit() and
+        _validate_birth(rrn)
+    )
+
+
 def is_valid_rrn(rrn: str) -> bool:
     """
     Validate given RRN and returns if it might be valid or not.
@@ -81,12 +97,10 @@ def is_valid_rrn(rrn: str) -> bool:
     """
     try:
         rrn = HYPHEN.sub('', rrn)
-        return (
-            rrn.isdigit() and
-            _validate_birth(rrn) and
-            _validate_location(rrn) and
-            _validate_hash(rrn)
-        )
+        if is_foreign(rrn):
+            return _is_valid_foreign_rrn(rrn)
+        else:
+            return _is_valid_domestic_rrn(rrn)
     except TypeError:
         return False
 

@@ -72,7 +72,11 @@ class TestRRN(unittest.TestCase):
             ('9408121001751', valid),
             ('9408121001750', invalid),
             ('9408221001740', valid),
-            ('9408221001741', invalid)
+            ('9408221001741', invalid),
+            ('9408225', valid),
+            ('940822699', valid),
+            ('940822700888', valid),
+            ('9408228008889', valid)
         ]:
             self.assertEqual(expected, rrn.is_valid_rrn(s))
 
