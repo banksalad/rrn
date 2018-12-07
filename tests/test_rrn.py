@@ -6,6 +6,40 @@ import rrn
 
 class TestRRN(unittest.TestCase):
 
+    def test_is_foreign(self):
+        undetermined = None
+        foreign, domestic = True, False
+        for s, expected in [
+            ('', undetermined),
+            ('9', undetermined),
+            ('94', undetermined),
+            ('940', undetermined),
+            ('9408', undetermined),
+            ('94081', undetermined),
+            ('940812', undetermined),
+            ('9408120', domestic),
+            ('94081201', domestic),
+            ('9408121', domestic),
+            ('94081212', domestic),
+            ('9408122', domestic),
+            ('94081223', domestic),
+            ('9408123', domestic),
+            ('94081234', domestic),
+            ('9408124', domestic),
+            ('94081245', domestic),
+            ('9408125', foreign),
+            ('94081256', foreign),
+            ('9408126', foreign),
+            ('94081267', foreign),
+            ('9408127', foreign),
+            ('94081278', foreign),
+            ('9408128', foreign),
+            ('94081289', foreign),
+            ('9408129', domestic),
+            ('94081290', domestic)
+        ]:
+            self.assertEqual(expected, rrn.is_foreign(s))
+
     def test_is_valid_rrn(self):
         valid, invalid = True, False
         for s, expected in [
